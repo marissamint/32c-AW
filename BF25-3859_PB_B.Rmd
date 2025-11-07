@@ -1,5 +1,5 @@
 ---
-title: "32C_T_analysis (FlowDensity)"
+title: "32C_B_analysis (FlowDensity)"
 output:
   html_document:
     code_folding: hide
@@ -19,7 +19,7 @@ knitr::opts_chunk$set(echo = T, message = FALSE)
 "XXX_BATCH_XXX"
 
 Debuging chunk
-```{r eval=FALSE, include=FALSE}
+```{r eval=T, include=FALSE}
 AUTOFLOW_destination <- "AUTOFLOW_destination"
 ```
 
@@ -99,7 +99,7 @@ plotting_global_mins <- paste0(AUTOFLOW_destination, "/src/A5_32c_Plotting_globa
 ## Load FCS files
 ```{r}
 fs.file <- "G:/BF_32c/PB/tubeB/test/xBF25-3859 PB tubeB_B11.fcs"
-fs.names <- "xBF25-3859 PB tubeB_B11.fcs"
+fs.names <- "NULL"
 analysis <- "SingleCase"
 ```
 
@@ -436,7 +436,8 @@ plot(gs)
 parent_pop <- "Lymph"
 fs <- gs_pop_get_data(gs, parent_pop)
 tp.gates <- fsApply(fs, f.NonT_gating2)
-# write.FCS(fs[[10]], paste0(parent_pop, "_", identifier(fs[[10]])))
+
+
 ```
 
 ```{r, fig.height=3, fig.width=15}
@@ -458,8 +459,35 @@ plot(gs)
 ### Perform gate
 ```{r fig.height=3, fig.width=12}
 parent_pop <- "NonT"
-fs <- gs_pop_get_data(gs, parent_pop)
-tp.gates <- fsApply(fs, f.Bgate)
+
+# Define the output directory path
+output_dir <- "FCS_Output"
+
+# Check if directory exists and create if needed
+if (!dir.exists(output_dir)) {
+  dir.create(output_dir)
+  message(paste("Created directory:", output_dir))
+} else {
+  message(paste("Directory exists:", output_dir))
+}
+
+# Process each sample in fs
+for (i in seq_along(fs)) {
+  # Create filename using parent_pop and sample identifier
+  filename <- paste0(parent_pop, "_", identifier(fs[[i]]))
+  
+  # Create full path for output file
+  output_path <- file.path(output_dir, filename)
+  
+  # Write FCS file to the output directory
+  write.FCS(fs[[i]], output_path)
+  
+  # Print progress
+  message(paste("Processed sample", i, "of", length(fs)))
+}
+
+#fs <- gs_pop_get_data(gs, parent_pop)
+#tp.gates <- fsApply(fs, f.Bgate)
 # write.FCS(fs[[10]], paste0(parent_pop, "_", identifier(fs[[10]])))
 ```
 
